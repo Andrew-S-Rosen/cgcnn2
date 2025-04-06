@@ -36,10 +36,11 @@ srun --unbuffered cgcnn-ft \
 	--valid-ratio $VALIDRATIO \
 	--test-ratio $TESTRATIO \
 	--epoch 1e3 \
-	--reset \
-	--train-last-fc \
+	--stop-patience 1e2 \
 	--lr-fc 0.01 \
 	--lr-non-fc 0.001 \
+	--reset \
+	--train-last-fc \
 	--job-id $SLURM_JOB_ID \
 	--random-seed 42
 
