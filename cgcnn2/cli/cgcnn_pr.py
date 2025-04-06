@@ -10,7 +10,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from sklearn.model_selection import train_test_split
 
 
 # Local Application / Specific Library Imports
@@ -21,13 +20,12 @@ from cgcnn2 import (
     CIFData,
     get_lr,
     cgcnn_test,
-    train_force_split,
 )
 
 
 def parse_arguments(args=None):
     """
-    Parses command-line arguments for the script.
+    Parses command-line arguments for the prediction script.
 
     Parameters
     ----------
@@ -35,7 +33,7 @@ def parse_arguments(args=None):
         List of command line arguments to parse. If None, sys.argv[1:] is used.
     """
     parser = argparse.ArgumentParser(
-        description="Command-line interface for the Crystal Graph Convolutional Neural Network (CGCNN) model."
+        description="Command-line interface for the CGCNN prediction script."
     )
     parser.add_argument(
         "-mp",
@@ -49,108 +47,8 @@ def parse_arguments(args=None):
         type=str,
         help="Path to the directory containing all CIF files for the dataset.",
     )
-    parser.add_argument(
-        "-trs",
-        "--train-set",
-        type=str,
-        help="Path to the directory containing CIF files for the train dataset.",
-    )
-    parser.add_argument(
-        "-vs",
-        "--valid-set",
-        type=str,
-        help="Path to the directory containing CIF files for the validation dataset.",
-    )
-    parser.add_argument(
-        "-ts",
-        "--test-set",
-        type=str,
-        help="Path to the directory containing CIF files for the test dataset.",
-    )
-    parser.add_argument(
-        "-trr",
-        "--train-ratio",
-        default=0.6,
-        type=float,
-        help="The ratio of the dataset to be used for training. Default: 0.6",
-    )
-    parser.add_argument(
-        "-trrfs",
-        "--train-ratio-force-set",
-        type=str,
-        help="Under the setting of input training dataset using train_ratio, this option allows you to force a specific set of cif files to be used for training.",
-    )
-    parser.add_argument(
-        "-vr",
-        "--valid-ratio",
-        default=0.2,
-        type=float,
-        help="The ratio of the dataset to be used for validation. Default: 0.2",
-    )
-    parser.add_argument(
-        "-tr",
-        "--test-ratio",
-        default=0.2,
-        type=float,
-        help="The ratio of the dataset to be used for testing. Default: 0.2",
-    )
-    parser.add_argument(
-        "-e",
-        "--epoch",
-        default=10000,
-        type=float,
-        help="Total epochs for training the model.",
-    )
-    parser.add_argument(
-        "-sp",
-        "--stop-patience",
-        default=100,
-        type=float,
-        help="Epochs for early stopping.",
-    )
-    # Learning rate scheduler
-    parser.add_argument(
-        "-lrp",
-        "--lr-patience",
-        default=0,
-        type=float,
-        help="Epochs for reducing learning rate.",
-    )
-    parser.add_argument(
-        "-lrf",
-        "--lr-factor",
-        default=0.0,
-        type=float,
-        help="Factor for reducing learning rate.",
-    )
-    # Advanced fine-tuning options
-    parser.add_argument(
-        "-r",
-        "--replace",
-        default=1,
-        type=int,
-        help="Replace the training layer to restart.",
-    )
-    parser.add_argument(
-        "-tlfc",
-        "--train-last-fc",
-        action="store_true",
-        help="Train on the last fully connected layer or all the fully connected layers. Default: False",
-    )
-    parser.add_argument(
-        "-lrfc",
-        "--lr-fc",
-        default=0.01,
-        type=float,
-        help="Learning rate for training the last fully connected layer. Default: 0.01",
-    )
-    parser.add_argument(
-        "-lrnfc",
-        "--lr-non-fc",
-        default=0.001,
-        type=float,
-        help="Learning rate for training the non-last fully connected layers. Default: 0.001",
-    )
+
+
     parser.add_argument(
         "-rs",
         "--random-seed",
@@ -178,18 +76,6 @@ def parse_arguments(args=None):
         "--disable-cuda",
         action="store_true",
         help="Force disable CUDA, even if a compatible GPU is available. Default: False",
-    )
-    parser.add_argument(
-        "-bt",
-        "--bias-temperature",
-        default=0.0,
-        type=float,
-        help=(
-            "If set > 0, bias the loss function using a Boltzmann-like factor.\n"
-            "Smaller 'bias_temperature' strongly favors low-energy structures.\n"
-            "Larger 'bias_temperature' reduces the low-energy bias.\n"
-            "If not specified or non-positive, no bias is applied."
-        ),
     )
     parser.add_argument(
         "-al",
@@ -221,7 +107,7 @@ def parse_arguments(args=None):
         > 1e-6
     ):
         warnings.warn(
-            "Train ratio, Valid ratio and Test ratio do not sum up to 1",
+            "Train ratio, Valid ratio and Test ratio sum up to more than 1",
             UserWarning,
             stacklevel=2,
         )
