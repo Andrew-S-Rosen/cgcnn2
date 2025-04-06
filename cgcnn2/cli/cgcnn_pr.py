@@ -48,7 +48,6 @@ def parse_arguments(args=None):
         help="Path to the directory containing all CIF files for the dataset.",
     )
 
-
     parser.add_argument(
         "-rs",
         "--random-seed",

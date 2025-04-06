@@ -14,15 +14,9 @@ from sklearn.model_selection import train_test_split
 
 
 # Local Application / Specific Library Imports
-from cgcnn2 import (
-    CrystalGraphConvNet,
-    Normalizer,
-    collate_pool,
-    CIFData,
-    get_lr,
-    cgcnn_test,
-    train_force_split,
-)
+from cgcnn2.cgcnn_model import CrystalGraphConvNet, Normalizer
+from cgcnn2.cgcnn_data import train_force_split, collate_pool, CIFData
+from cgcnn2.cgcnn_utils import get_lr, cgcnn_test
 
 
 def parse_arguments(args=None):
